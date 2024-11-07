@@ -1,6 +1,7 @@
 package com.github.zabbum.oelremakeserver.service;
 
 import com.github.zabbum.oelremakecomponents.Player;
+import com.github.zabbum.oelremakecomponents.plants.industries.AbstractIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.Cars.CarsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.Drills.DrillsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.Pumps.PumpsIndustry;
@@ -102,5 +103,20 @@ public class GameService {
     public List<PumpsIndustry> getPumpsIndustries(String gameId) {
         Game game = GameStorage.getInstance().getGames().get(gameId);
         return game.getPumpsIndustries();
+    }
+
+    public AbstractIndustry buyCarsIndustry(Integer playerIndex, String gameId, Integer industryIndex, Integer productPrice) {
+        Game game = GameStorage.getInstance().getGames().get(gameId);
+        Player player = game.getPlayers().get(playerIndex);
+        List<CarsIndustry> industries = game.getCarsIndustries();
+
+        AbstractIndustry industry = industries.get(industryIndex);
+
+        // Note purchase
+        industry.setOwnership(player);
+        player.decreaseBalance(industry.getPlantPrice());
+        industry.setProductPrice(productPrice);
+
+        return industry;
     }
 }
