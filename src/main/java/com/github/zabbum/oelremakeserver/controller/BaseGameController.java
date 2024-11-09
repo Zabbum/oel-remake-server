@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.List;
 public class BaseGameController {
 
     private final BaseGameService gameService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleAnotherPlayersTurnException(RuntimeException e) {
@@ -81,46 +83,57 @@ public class BaseGameController {
     }
 
     @PostMapping("/buyOilfield")
-    public ResponseEntity<Oilfield> buyOilfield(@RequestBody BuyOilfieldKit buyOilfieldKit) {
+    public ResponseEntity<BaseGame> buyOilfield(@RequestBody BuyOilfieldKit buyOilfieldKit) {
         log.info("Buy oilfield request: {}", buyOilfieldKit);
-        return ResponseEntity.ok(gameService.buyOilfield(
+        BaseGame game = gameService.buyOilfield(
                 buyOilfieldKit.getGameId(), buyOilfieldKit.getPlayerId(), buyOilfieldKit.getOilfieldId()
-        ));
+        );
+        messagingTemplate.convertAndSend("/topic/game-progress/" + game.getGameId(), game);
+        return ResponseEntity.ok(game);
     }
 
     @PostMapping("/buyIndustry")
-    public ResponseEntity<AbstractIndustry> buyIndustry(@RequestBody BuyIndustryKit buyIndustryKit) throws ClassNotFoundException {
+    public ResponseEntity<BaseGame> buyIndustry(@RequestBody BuyIndustryKit buyIndustryKit) throws ClassNotFoundException {
         log.info("Buy industry request: {}", buyIndustryKit);
-        return ResponseEntity.ok(gameService.buyIndustry(
+        BaseGame game = gameService.buyIndustry(
                 buyIndustryKit.getGameId(), buyIndustryKit.getPlayerId(), buyIndustryKit.getIndustryClassName(),
                 buyIndustryKit.getIndustryId(), buyIndustryKit.getProductPrice()
-        ));
+        );
+        messagingTemplate.convertAndSend("/topic/game-progress/" + game.getGameId(), game);
+        return ResponseEntity.ok(game);
     }
 
     @PostMapping("/buyProducts")
-    public ResponseEntity<Oilfield> buyProducts(@RequestBody BuyProductsKit buyProductsKit) throws ClassNotFoundException {
+    public ResponseEntity<BaseGame> buyProducts(@RequestBody BuyProductsKit buyProductsKit) throws ClassNotFoundException {
         log.info("Buy products request: {}", buyProductsKit);
-        return ResponseEntity.ok(gameService.buyProducts(
+        BaseGame game = gameService.buyProducts(
                 buyProductsKit.getGameId(), buyProductsKit.getPlayerId(), buyProductsKit.getIndustryClassName(),
                 buyProductsKit.getIndustryId(), buyProductsKit.getProductAmount(), buyProductsKit.getOilfieldId()
-        ));
+        );
+        messagingTemplate.convertAndSend("/topic/game-progress/" + game.getGameId(), game);
+        return ResponseEntity.ok(game);
     }
 
     @PostMapping("/changePrices")
     public ResponseEntity<BaseGame> changePrices(@RequestBody ChangePricesKit changePricesKit) throws ClassNotFoundException {
         log.info("Change prices request: {}", changePricesKit);
-        return ResponseEntity.ok(gameService.changePrices(
+        BaseGame game = gameService.changePrices(
                 changePricesKit.getGameId(), changePricesKit.getPlayerId(), changePricesKit.getIndustryClassName(),
                 changePricesKit.getIndustryId(), changePricesKit.getNewPrice()
-        ));
+        );
+        messagingTemplate.convertAndSend("/topic/game-progress/" + game.getGameId(), game);
+        return ResponseEntity.ok(game);
     }
 
     @PostMapping("/sabotage")
-    public ResponseEntity<SabotageSuccess> doSabotage(@RequestBody SabotageKit sabotageKit) throws ClassNotFoundException {
+    public ResponseEntity<BaseGame> doSabotage(@RequestBody SabotageKit sabotageKit) throws ClassNotFoundException {
         log.info("Do sabotage request: {}", sabotageKit);
-        return ResponseEntity.ok(gameService.doSabotage(
+        BaseGame game = gameService.doSabotage(
                 sabotageKit.getGameId(), sabotageKit.getPlayerId(), sabotageKit.getPlantClassName(),
                 sabotageKit.getPlantId()
-        ));
+        );
+        messagingTemplate.convertAndSend("/topic/game-progress/" + game.getGameId(), game);
+        return ResponseEntity.ok(game);
     }
+
 }

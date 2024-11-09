@@ -127,7 +127,7 @@ public class BaseGameService {
         return GameStorage.getInstance().getGames().get(gameId);
     }
 
-    public Oilfield buyOilfield(String gameId, Integer playerId, Integer oilfieldId) {
+    public BaseGame buyOilfield(String gameId, Integer playerId, Integer oilfieldId) {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
@@ -154,10 +154,10 @@ public class BaseGameService {
 
         endTurn(game);
 
-        return selectedOilfield;
+        return game;
     }
 
-    public AbstractIndustry buyIndustry(String gameId, Integer playerId, String industryClassName, Integer industryId, Integer productPrice) throws ClassNotFoundException {
+    public BaseGame buyIndustry(String gameId, Integer playerId, String industryClassName, Integer industryId, Integer productPrice) throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
@@ -196,10 +196,10 @@ public class BaseGameService {
 
         endTurn(game);
 
-        return selectedIndustry;
+        return game;
     }
 
-    public Oilfield buyProducts(String gameId, Integer playerId, String industryClassName, Integer industryId, Integer productAmount, Integer oilfieldId) throws ClassNotFoundException {
+    public BaseGame buyProducts(String gameId, Integer playerId, String industryClassName, Integer industryId, Integer productAmount, Integer oilfieldId) throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
@@ -243,7 +243,7 @@ public class BaseGameService {
 
         endTurn(game);
 
-        return selectedOilfield;
+        return game;
     }
 
     public BaseGame changePrices(String gameId, Integer playerId, String industryClassName, Integer industryId, Integer newPrice) throws ClassNotFoundException {
@@ -283,7 +283,7 @@ public class BaseGameService {
         return game;
     }
 
-    public SabotageSuccess doSabotage(String gameId, Integer playerId, String plantClassName, Integer plantId) throws ClassNotFoundException {
+    public BaseGame doSabotage(String gameId, Integer playerId, String plantClassName, Integer plantId) throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
@@ -317,7 +317,7 @@ public class BaseGameService {
 
         endTurn(game);
 
-        return sabotageSuccess;
+        return game;
     }
 
     private SabotageSuccess oilfieldSabotage(Oilfield oilfield, Player player) {
