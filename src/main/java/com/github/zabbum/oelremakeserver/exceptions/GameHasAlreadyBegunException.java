@@ -1,9 +1,9 @@
 package com.github.zabbum.oelremakeserver.exceptions;
 
-import com.github.zabbum.oelremakeserver.model.Game;
+import com.github.zabbum.oelremakecomponents.game.BaseGame;
 
 public class GameHasAlreadyBegunException extends RuntimeException {
-    public GameHasAlreadyBegunException(Game game) {
+    public GameHasAlreadyBegunException(BaseGame game) {
         super("Game " + game.getGameId() + " has already begun.");
     }
 }

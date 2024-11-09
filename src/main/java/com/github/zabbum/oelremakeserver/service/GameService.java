@@ -10,8 +10,8 @@ import com.github.zabbum.oelremakeserver.exceptions.ClassIsNotCorrect;
 import com.github.zabbum.oelremakeserver.exceptions.GameDoesNotExistException;
 import com.github.zabbum.oelremakeserver.exceptions.GameHasAlreadyBegunException;
 import com.github.zabbum.oelremakeserver.exceptions.PlayerAlreadyInGameException;
-import com.github.zabbum.oelremakeserver.model.Game;
-import com.github.zabbum.oelremakeserver.model.GameStatus;
+import com.github.zabbum.oelremakecomponents.game.BaseGame;
+import com.github.zabbum.oelremakecomponents.game.GameStatus;
 import com.github.zabbum.oelremakeserver.operations.*;
 import com.github.zabbum.oelremakeserver.storage.GameStorage;
 import lombok.AllArgsConstructor;
@@ -30,8 +30,8 @@ public class GameService {
      *
      * @return new game
      */
-    public Game createGame(String playerName, Integer playersAmount) {
-        Game game = new Game();
+    public BaseGame createGame(String playerName, Integer playersAmount) {
+        BaseGame game = new BaseGame();
 
         // Set round count
         game.setGameId(UUID.randomUUID().toString());
@@ -59,14 +59,14 @@ public class GameService {
         return game;
     }
 
-    public Game connectToGame(String playerName, String gameId) throws GameDoesNotExistException {
+    public BaseGame connectToGame(String playerName, String gameId) throws GameDoesNotExistException {
         // If game does not exist, throw an exception
         if (!GameStorage.getInstance().getGames().containsKey(gameId)) {
             throw new GameDoesNotExistException(gameId);
         }
 
         // Get game by gameId
-        Game game = GameStorage.getInstance().getGames().get(gameId);
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
 
         // If game is in progress, throw exception
         if (game.getGameStatus() != GameStatus.NEW) {
@@ -92,27 +92,27 @@ public class GameService {
     }
 
     public List<Oilfield> getOilfields(String gameId) {
-        Game game = GameStorage.getInstance().getGames().get(gameId);
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         return game.getOilfields();
     }
 
     public List<CarsIndustry> getCarsIndustries(String gameId) {
-        Game game = GameStorage.getInstance().getGames().get(gameId);
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         return game.getCarsIndustries();
     }
 
     public List<DrillsIndustry> getDrillsIndustries(String gameId) {
-        Game game = GameStorage.getInstance().getGames().get(gameId);
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         return game.getDrillsIndustries();
     }
 
     public List<PumpsIndustry> getPumpsIndustries(String gameId) {
-        Game game = GameStorage.getInstance().getGames().get(gameId);
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         return game.getPumpsIndustries();
     }
 
     public Player getPlayer(String gameId, Integer playerId) {
-        Game game = GameStorage.getInstance().getGames().get(gameId);
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         return game.getPlayers().get(playerId);
     }
 
@@ -121,7 +121,7 @@ public class GameService {
             Integer productPrice
     )
             throws ClassNotFoundException {
-        Game game = GameStorage.getInstance().getGames().get(gameId);
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
         // Verification of data received

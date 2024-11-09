@@ -1,9 +1,9 @@
 package com.github.zabbum.oelremakeserver.exceptions;
 
-import com.github.zabbum.oelremakeserver.model.Game;
+import com.github.zabbum.oelremakecomponents.game.BaseGame;
 
 public class PlayerAlreadyInGameException extends RuntimeException {
-    public PlayerAlreadyInGameException(String playerName, Game game) {
+    public PlayerAlreadyInGameException(String playerName, BaseGame game) {
         super("Player " + playerName + " is already in a game: " + game.getGameId());
     }
 }

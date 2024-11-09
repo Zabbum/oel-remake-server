@@ -7,7 +7,7 @@ import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
 import com.github.zabbum.oelremakeserver.model.kits.BuyIndustryKit;
-import com.github.zabbum.oelremakeserver.model.Game;
+import com.github.zabbum.oelremakecomponents.game.BaseGame;
 import com.github.zabbum.oelremakeserver.model.kits.JoinKit;
 import com.github.zabbum.oelremakeserver.model.kits.PlayerInfoKit;
 import com.github.zabbum.oelremakeserver.model.kits.StarterKit;
@@ -31,13 +31,13 @@ public class GameController {
     private final GameService gameService;
 
     @PostMapping("/start")
-    public ResponseEntity<Game> createGame(@RequestBody StarterKit starterKit) {
+    public ResponseEntity<BaseGame> createGame(@RequestBody StarterKit starterKit) {
         log.info("Game creation request: {}", starterKit);
         return ResponseEntity.ok(gameService.createGame(starterKit.getPlayerName(), starterKit.getPlayersAmount()));
     }
 
     @PostMapping("/connect")
-    public ResponseEntity<Game> connectToGame(@RequestBody JoinKit joinKit) {
+    public ResponseEntity<BaseGame> connectToGame(@RequestBody JoinKit joinKit) {
         log.info("Game connection request: {}", joinKit);
         return ResponseEntity.ok(gameService.connectToGame(joinKit.getPlayerName(), joinKit.getGameId()));
     }

@@ -1,12 +1,12 @@
 package com.github.zabbum.oelremakeserver.storage;
 
-import com.github.zabbum.oelremakeserver.model.Game;
+import com.github.zabbum.oelremakecomponents.game.BaseGame;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GameStorage {
-    private static Map<String, Game> games;
+    private static Map<String, BaseGame> games;
     private static GameStorage instance;
 
     private GameStorage() {
@@ -20,11 +20,11 @@ public class GameStorage {
         return instance;
     }
 
-    public Map<String, Game> getGames() {
+    public Map<String, BaseGame> getGames() {
         return games;
     }
 
-    public void putGame(Game game) {
+    public void putGame(BaseGame game) {
         games.put(game.getGameId(), game);
     }
 }
