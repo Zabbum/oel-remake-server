@@ -28,6 +28,7 @@ public class BaseGameController {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleAnotherPlayersTurnException(RuntimeException e) {
+        log.error(e.getMessage(), e);
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
