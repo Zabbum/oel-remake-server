@@ -135,7 +135,7 @@ public class BaseGameService {
         Player player = game.getPlayers().get(playerId);
 
         // If game has not begun, throw an exception
-        if (game.getGameStatus()!= GameStatus.NEW) {
+        if (game.getGameStatus()!= GameStatus.IN_PROGRESS) {
             throw new GameHasNotBegunException(game);
         }
 
@@ -169,7 +169,7 @@ public class BaseGameService {
         Player player = game.getPlayers().get(playerId);
 
         // If game has not begun, throw an exception
-        if (game.getGameStatus()!= GameStatus.NEW) {
+        if (game.getGameStatus()!= GameStatus.IN_PROGRESS) {
             throw new GameHasNotBegunException(game);
         }
 
@@ -216,7 +216,7 @@ public class BaseGameService {
         Player player = game.getPlayers().get(playerId);
 
         // If game has not begun, throw an exception
-        if (game.getGameStatus()!= GameStatus.NEW) {
+        if (game.getGameStatus()!= GameStatus.IN_PROGRESS) {
             throw new GameHasNotBegunException(game);
         }
 
