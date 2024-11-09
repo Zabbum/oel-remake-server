@@ -15,18 +15,18 @@ public class OilfieldOperations {
         List<Oilfield> oilfields = new ArrayList<>();
 
         // Oilfields initialization
-        oilfields.add(new Oilfield("JASNY GWINT"));
-        oilfields.add(new Oilfield("WIELKA DZIURA"));
-        oilfields.add(new Oilfield("WIERTOWISKO"));
-        oilfields.add(new Oilfield("SMAK WALUTY"));
-        oilfields.add(new Oilfield("MI£A ZIEMIA"));
-        oilfields.add(new Oilfield("BORUJ-BORUJ"));
-        oilfields.add(new Oilfield("KRASNY POTOK"));
-        oilfields.add(new Oilfield("P£YTKIE DO£Y"));
-        oilfields.add(new Oilfield("$LADY OLEJU"));
-        oilfields.add(new Oilfield("NICZYJ GRUNT"));
-        oilfields.add(new Oilfield("DZIKIE PSY"));
-        oilfields.add(new Oilfield("UGORY NAFTOWE"));
+        oilfields.add(new Oilfield("JASNY GWINT", 0));
+        oilfields.add(new Oilfield("WIELKA DZIURA", 1));
+        oilfields.add(new Oilfield("WIERTOWISKO", 2));
+        oilfields.add(new Oilfield("SMAK WALUTY", 3));
+        oilfields.add(new Oilfield("MI£A ZIEMIA", 4));
+        oilfields.add(new Oilfield("BORUJ-BORUJ", 5));
+        oilfields.add(new Oilfield("KRASNY POTOK", 6));
+        oilfields.add(new Oilfield("P£YTKIE DO£Y", 7));
+        oilfields.add(new Oilfield("$LADY OLEJU", 8));
+        oilfields.add(new Oilfield("NICZYJ GRUNT", 9));
+        oilfields.add(new Oilfield("DZIKIE PSY", 10));
+        oilfields.add(new Oilfield("UGORY NAFTOWE", 11));
 
         return oilfields;
     }

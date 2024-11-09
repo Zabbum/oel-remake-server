@@ -1,14 +1,14 @@
 package com.github.zabbum.oelremakeserver.service;
 
 import com.github.zabbum.oelremakecomponents.Player;
+import com.github.zabbum.oelremakecomponents.game.BaseGame;
+import com.github.zabbum.oelremakecomponents.game.GameStatus;
 import com.github.zabbum.oelremakecomponents.plants.industries.AbstractIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.CarsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
 import com.github.zabbum.oelremakeserver.exceptions.*;
-import com.github.zabbum.oelremakecomponents.game.BaseGame;
-import com.github.zabbum.oelremakecomponents.game.GameStatus;
 import com.github.zabbum.oelremakeserver.operations.*;
 import com.github.zabbum.oelremakeserver.storage.GameStorage;
 import lombok.AllArgsConstructor;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -37,7 +38,7 @@ public class BaseGameService {
         game.setPlayersAmount(playersAmount);
 
         // Set player 0
-        Player player = new Player(playerName);
+        Player player = new Player(playerName, 0);
         game.setPlayers(new ArrayList<>());
         game.getPlayers().add(player);
 
@@ -77,12 +78,13 @@ public class BaseGameService {
         }
 
         // Add player to game
-        Player player = new Player(playerName);
+        Player player = new Player(playerName, game.getPlayers().size() - 1);
         game.getPlayers().add(player);
 
         // If game is full, change status
         if (game.getPlayers().size() == game.getPlayersAmount()) {
             game.setGameStatus(GameStatus.IN_PROGRESS);
+            game.setCurrentPlayerTurn(0);
         }
 
         return game;
@@ -123,6 +125,11 @@ public class BaseGameService {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
+        // If another player is having turn, throw an exception
+        if (!Objects.equals(game.getCurrentPlayerTurn(), playerId)) {
+            throw new AnotherPlayersTurnException(playerId, game);
+        }
+
         List<Oilfield> oilfields = game.getOilfields();
         Oilfield selectedOilfield = oilfields.get(oilfieldId);
 
@@ -134,6 +141,8 @@ public class BaseGameService {
         selectedOilfield.setOwnership(player);
         player.decreaseBalance(selectedOilfield.getPlantPrice());
 
+        game.endCurrentPlayerTurn();
+
         return selectedOilfield;
     }
 
@@ -144,6 +153,11 @@ public class BaseGameService {
             throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
+
+        // If another player is having turn, throw an exception
+        if (!Objects.equals(game.getCurrentPlayerTurn(), playerId)) {
+            throw new AnotherPlayersTurnException(playerId, game);
+        }
 
         // Verification of data received
         Class<?> tmpClass = Class.forName(industryClassName);
@@ -170,6 +184,8 @@ public class BaseGameService {
         player.decreaseBalance(selectedIndustry.getPlantPrice());
         selectedIndustry.setProductPrice(productPrice);
 
+        game.endCurrentPlayerTurn();
+
         return selectedIndustry;
     }
 
@@ -179,6 +195,12 @@ public class BaseGameService {
     ) throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
+
+        // If another player is having turn, throw an exception
+        if (!Objects.equals(game.getCurrentPlayerTurn(), playerId)) {
+            throw new AnotherPlayersTurnException(playerId, game);
+        }
+
         List<Oilfield> oilfields = game.getOilfields();
         Oilfield selectedOilfield = oilfields.get(oilfieldId);
 
@@ -203,12 +225,13 @@ public class BaseGameService {
         player.decreaseBalance(productAmount * selectedIndustry.getProductPrice());
         if (selectedIndustry.getOwnership() == player) {
             player.increaseBalance(0.2 * productAmount * selectedIndustry.getProductPrice());
-        }
-        else {
+        } else {
             selectedIndustry.getOwnership().increaseBalance(productAmount * selectedIndustry.getProductPrice());
         }
 
         selectedOilfield.addProductAmount(selectedIndustry.getClass(), productAmount);
+
+        game.endCurrentPlayerTurn();
 
         return selectedOilfield;
     }

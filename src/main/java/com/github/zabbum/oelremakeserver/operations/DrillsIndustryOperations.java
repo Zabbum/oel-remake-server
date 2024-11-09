@@ -15,9 +15,9 @@ public class DrillsIndustryOperations {
         List<DrillsIndustry> drillProds = new ArrayList<>();
 
         // Drills productions initialization
-        drillProds.add(new DrillsIndustry("TURBOWIERT"));
-        drillProds.add(new DrillsIndustry("NA B£YSK INC."));
-        drillProds.add(new DrillsIndustry("PET SHOP&BOYS"));
+        drillProds.add(new DrillsIndustry("TURBOWIERT", 0));
+        drillProds.add(new DrillsIndustry("NA B£YSK INC.", 1));
+        drillProds.add(new DrillsIndustry("PET SHOP&BOYS", 2));
 
         return drillProds;
     }

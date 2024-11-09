@@ -14,10 +14,10 @@ public class CarsIndustryOperations {
         List<CarsIndustry> carsIndustries = new ArrayList<>();
 
         // Cars productions initialization
-        carsIndustries.add(new CarsIndustry("WOZ-PRZEWOZ"));
-        carsIndustries.add(new CarsIndustry("WAGONENSITZ"));
-        carsIndustries.add(new CarsIndustry("WORLD CO."));
-        carsIndustries.add(new CarsIndustry("DRINK TANK INC."));
+        carsIndustries.add(new CarsIndustry("WOZ-PRZEWOZ", 0));
+        carsIndustries.add(new CarsIndustry("WAGONENSITZ", 1));
+        carsIndustries.add(new CarsIndustry("WORLD CO.", 2));
+        carsIndustries.add(new CarsIndustry("DRINK TANK INC.", 3));
 
         return carsIndustries;
     }

@@ -15,8 +15,8 @@ public class PumpsIndustryOperations {
         List<PumpsIndustry> pumpProds = new ArrayList<>();
 
         // Pump productions initialization
-        pumpProds.add(new PumpsIndustry("ZASSANICKI GMBH"));
-        pumpProds.add(new PumpsIndustry("DR PUMPENER"));
+        pumpProds.add(new PumpsIndustry("ZASSANICKI GMBH", 0));
+        pumpProds.add(new PumpsIndustry("DR PUMPENER", 1));
 
         return pumpProds;
     }
