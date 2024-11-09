@@ -7,15 +7,14 @@ import com.github.zabbum.oelremakecomponents.plants.industries.CarsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
+import com.github.zabbum.oelremakeserver.model.SabotageSuccess;
 import com.github.zabbum.oelremakeserver.model.kits.*;
 import com.github.zabbum.oelremakeserver.service.BaseGameService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,6 +25,11 @@ import java.util.List;
 public class BaseGameController {
 
     private final BaseGameService gameService;
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleAnotherPlayersTurnException(RuntimeException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
     @PostMapping("/start")
     public ResponseEntity<BaseGame> createGame(@RequestBody StarterKit starterKit) {
@@ -40,27 +44,27 @@ public class BaseGameController {
     }
 
     @PostMapping("/getOilfields")
-    public ResponseEntity<List<Oilfield>> getOilfields(@RequestBody String gameId) {
+    public ResponseEntity<List<Oilfield>> getOilfields(@RequestBody GameIdKit gameIdKit) {
         log.info("Get oilfields request");
-        return ResponseEntity.ok(gameService.getOilfields(gameId));
+        return ResponseEntity.ok(gameService.getOilfields(gameIdKit.getGameId()));
     }
 
     @PostMapping("/getCarsIndustries")
-    public ResponseEntity<List<CarsIndustry>> getCarsIndustries(@RequestBody String gameId) {
+    public ResponseEntity<List<CarsIndustry>> getCarsIndustries(@RequestBody GameIdKit gameIdKit) {
         log.info("Get cars industries request");
-        return ResponseEntity.ok(gameService.getCarsIndustries(gameId));
+        return ResponseEntity.ok(gameService.getCarsIndustries(gameIdKit.getGameId()));
     }
 
     @PostMapping("/getDrillsIndustries")
-    public ResponseEntity<List<DrillsIndustry>> getDrillsIndustries(@RequestBody String gameId) {
+    public ResponseEntity<List<DrillsIndustry>> getDrillsIndustries(@RequestBody GameIdKit gameIdKit) {
         log.info("Get drills industries request");
-        return ResponseEntity.ok(gameService.getDrillsIndustries(gameId));
+        return ResponseEntity.ok(gameService.getDrillsIndustries(gameIdKit.getGameId()));
     }
 
     @PostMapping("/getPumpsIndustries")
-    public ResponseEntity<List<PumpsIndustry>> getPumpsIndustries(@RequestBody String gameId) {
+    public ResponseEntity<List<PumpsIndustry>> getPumpsIndustries(@RequestBody GameIdKit gameIdKit) {
         log.info("Get pumps industries request");
-        return ResponseEntity.ok(gameService.getPumpsIndustries(gameId));
+        return ResponseEntity.ok(gameService.getPumpsIndustries(gameIdKit.getGameId()));
     }
 
     @PostMapping("/getPlayer")
@@ -107,6 +111,15 @@ public class BaseGameController {
         return ResponseEntity.ok(gameService.changePrices(
                 changePricesKit.getGameId(), changePricesKit.getPlayerId(), changePricesKit.getIndustryClassName(),
                 changePricesKit.getIndustryId(), changePricesKit.getNewPrice()
+        ));
+    }
+
+    @PostMapping("/sabotage")
+    public ResponseEntity<SabotageSuccess> doSabotage(@RequestBody SabotageKit sabotageKit) throws ClassNotFoundException {
+        log.info("Do sabotage request: {}", sabotageKit);
+        return ResponseEntity.ok(gameService.doSabotage(
+                sabotageKit.getGameId(), sabotageKit.getPlayerId(), sabotageKit.getPlantClassName(),
+                sabotageKit.getPlantId()
         ));
     }
 }

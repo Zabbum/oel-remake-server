@@ -3,21 +3,20 @@ package com.github.zabbum.oelremakeserver.service;
 import com.github.zabbum.oelremakecomponents.Player;
 import com.github.zabbum.oelremakecomponents.game.BaseGame;
 import com.github.zabbum.oelremakecomponents.game.GameStatus;
+import com.github.zabbum.oelremakecomponents.plants.AbstractPlant;
 import com.github.zabbum.oelremakecomponents.plants.industries.AbstractIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.CarsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
 import com.github.zabbum.oelremakeserver.exceptions.*;
+import com.github.zabbum.oelremakeserver.model.SabotageSuccess;
 import com.github.zabbum.oelremakeserver.operations.*;
 import com.github.zabbum.oelremakeserver.storage.GameStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -128,9 +127,7 @@ public class BaseGameService {
         return GameStorage.getInstance().getGames().get(gameId);
     }
 
-    public Oilfield buyOilfield(
-            String gameId, Integer playerId, Integer oilfieldId
-    ) {
+    public Oilfield buyOilfield(String gameId, Integer playerId, Integer oilfieldId) {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
@@ -160,11 +157,7 @@ public class BaseGameService {
         return selectedOilfield;
     }
 
-    public AbstractIndustry buyIndustry(
-            String gameId, Integer playerId, String industryClassName, Integer industryId,
-            Integer productPrice
-    )
-            throws ClassNotFoundException {
+    public AbstractIndustry buyIndustry(String gameId, Integer playerId, String industryClassName, Integer industryId, Integer productPrice) throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
@@ -184,10 +177,8 @@ public class BaseGameService {
             throw new ClassIsNotCorrect(tmpClass);
         }
 
-        @SuppressWarnings("unchecked")
-        Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
-        @SuppressWarnings("unchecked")
-        List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
+        @SuppressWarnings("unchecked") Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
+        @SuppressWarnings("unchecked") List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
         AbstractIndustry selectedIndustry = industries.get(industryId);
 
         if (selectedIndustry.isBought()) {
@@ -208,10 +199,7 @@ public class BaseGameService {
         return selectedIndustry;
     }
 
-    public Oilfield buyProducts(
-            String gameId, Integer playerId, String industryClassName, Integer industryId, Integer productAmount,
-            Integer oilfieldId
-    ) throws ClassNotFoundException {
+    public Oilfield buyProducts(String gameId, Integer playerId, String industryClassName, Integer industryId, Integer productAmount, Integer oilfieldId) throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
@@ -234,10 +222,8 @@ public class BaseGameService {
             throw new ClassIsNotCorrect(tmpClass);
         }
 
-        @SuppressWarnings("unchecked")
-        Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
-        @SuppressWarnings("unchecked")
-        List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
+        @SuppressWarnings("unchecked") Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
+        @SuppressWarnings("unchecked") List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
         AbstractIndustry selectedIndustry = industries.get(industryId);
 
         if (!selectedIndustry.isBought()) {
@@ -260,9 +246,7 @@ public class BaseGameService {
         return selectedOilfield;
     }
 
-    public BaseGame changePrices(
-            String gameId, Integer playerId, String industryClassName, Integer industryId, Integer newPrice
-    ) throws ClassNotFoundException {
+    public BaseGame changePrices(String gameId, Integer playerId, String industryClassName, Integer industryId, Integer newPrice) throws ClassNotFoundException {
 
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
@@ -283,10 +267,8 @@ public class BaseGameService {
             throw new ClassIsNotCorrect(tmpClass);
         }
 
-        @SuppressWarnings("unchecked")
-        Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
-        @SuppressWarnings("unchecked")
-        List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
+        @SuppressWarnings("unchecked") Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
+        @SuppressWarnings("unchecked") List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
         AbstractIndustry selectedIndustry = industries.get(industryId);
 
         if (selectedIndustry.getOwnership() != player) {
@@ -299,5 +281,99 @@ public class BaseGameService {
         endTurn(game);
 
         return game;
+    }
+
+    public SabotageSuccess doSabotage(String gameId, Integer playerId, String plantClassName, Integer plantId) throws ClassNotFoundException {
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
+        Player player = game.getPlayers().get(playerId);
+
+        // If game has not begun, throw an exception
+        if (game.getGameStatus() != GameStatus.IN_PROGRESS) {
+            throw new GameHasNotBegunException(game);
+        }
+
+        // If another player is having turn, throw an exception
+        if (!Objects.equals(game.getCurrentPlayerTurn(), playerId)) {
+            throw new AnotherPlayersTurnException(playerId, game);
+        }
+
+        // Verification of data received
+        Class<?> tmpClass = Class.forName(plantClassName);
+        if (tmpClass.isAssignableFrom(AbstractPlant.class)) {
+            throw new ClassIsNotCorrect(tmpClass);
+        }
+
+        @SuppressWarnings("unchecked") Class<? extends AbstractPlant> plantClass = (Class<? extends AbstractPlant>) tmpClass;
+        List<? extends AbstractPlant> plants = game.getPlantsList(plantClass);
+        AbstractPlant selectedPlant = plants.get(plantId);
+
+        // Do sabotage depending on what plant type is chosen
+        SabotageSuccess sabotageSuccess = switch (tmpClass.getSimpleName()) {
+            case "Oilfield" -> oilfieldSabotage((Oilfield) selectedPlant, player);
+            case "CarsIndustry", "DrillsIndustry", "PumpsIndustry" ->
+                    industrySabotage((AbstractIndustry) selectedPlant, player);
+            default -> null;
+        };
+
+        endTurn(game);
+
+        return sabotageSuccess;
+    }
+
+    private SabotageSuccess oilfieldSabotage(Oilfield oilfield, Player player) {
+        Random random = new Random();
+        boolean isSucceed = random.nextBoolean();
+        int isSucceed2 = random.nextInt(3);
+
+        if (!isSucceed) {
+            return SabotageSuccess.FAILURE;
+        }
+
+        // Generate fees
+        int fees1 = random.nextInt(40000) + 40000;
+        int fees2 = random.nextInt(40000) + 1;
+
+        player.decreaseBalance(fees1 + fees2);
+
+        if (!(isSucceed2 == 2)) {
+            return SabotageSuccess.MONEYTAKEN;
+        }
+
+        // Reset oilfield
+        oilfield.setPlantPrice(random.nextInt(50000) + 30001);
+        oilfield.setTotalOilAmount(random.nextInt(200000) + 1);
+        oilfield.setOwnership(null);
+        oilfield.setExploitable(false);
+        oilfield.setRequiredDepth(random.nextInt(4500) + 1);
+        oilfield.setPumpsAmount(0);
+        oilfield.setCarsAmount(0);
+        oilfield.setDrillsAmount(0);
+        oilfield.setCurrentDepth(0);
+        oilfield.setOilExtracted(0);
+        oilfield.setOilAvailabletoSell(0);
+
+        return SabotageSuccess.SUCCESS;
+    }
+
+    private SabotageSuccess industrySabotage(AbstractIndustry industry, Player player) {
+
+        double[] results = new double[]{0.5, -0.2, 0.4, -0.1, 0.3, -0.3, 0.1, -0.4, 0.2, -0.5};
+
+        Random random = new Random();
+        double result = results[random.nextInt(results.length)] + 1;
+
+        // Take action
+        player.decreaseBalance(industry.getPlantPrice() * result);
+
+        if (result < 1) {
+            industry.setPlantPrice(random.nextInt(100000) + 1);
+            industry.setProductPrice(0);
+            industry.setProductsAmount(industry.getPlantPrice() / 10000);
+            industry.setOwnership(null);
+
+            return SabotageSuccess.SUCCESS;
+        }
+
+        return SabotageSuccess.FAILURE;
     }
 }
