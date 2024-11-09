@@ -1,10 +1,12 @@
 package com.github.zabbum.oelremakeserver.model;
 
 import com.github.zabbum.oelremakecomponents.Player;
-import com.github.zabbum.oelremakecomponents.plants.industries.Cars.CarsIndustry;
-import com.github.zabbum.oelremakecomponents.plants.industries.Drills.DrillsIndustry;
-import com.github.zabbum.oelremakecomponents.plants.industries.Pumps.PumpsIndustry;
+import com.github.zabbum.oelremakecomponents.plants.AbstractPlant;
+import com.github.zabbum.oelremakecomponents.plants.industries.CarsIndustry;
+import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
+import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
+import com.github.zabbum.oelremakeserver.exceptions.ClassIsNotCorrect;
 import lombok.Data;
 
 import java.util.List;
@@ -24,4 +26,22 @@ public class Game {
     private List<PumpsIndustry> pumpsIndustries;
 
     private Double[] oilPrices;
+
+    public List<? extends AbstractPlant> getPlantsList(Class<? extends AbstractPlant> plantClass) {
+        switch (plantClass.getSimpleName()) {
+            case "Oilfield" -> {
+                return oilfields;
+            }
+            case "CarsIndustry" -> {
+                return carsIndustries;
+            }
+            case "DrillsIndustry" -> {
+                return drillsIndustries;
+            }
+            case "PumpsIndustry" -> {
+                return pumpsIndustries;
+            }
+            default -> throw new ClassIsNotCorrect(plantClass);
+        }
+    }
 }

@@ -1,10 +1,12 @@
 package com.github.zabbum.oelremakeserver.service;
 
 import com.github.zabbum.oelremakecomponents.Player;
-import com.github.zabbum.oelremakecomponents.plants.industries.Cars.CarsIndustry;
-import com.github.zabbum.oelremakecomponents.plants.industries.Drills.DrillsIndustry;
-import com.github.zabbum.oelremakecomponents.plants.industries.Pumps.PumpsIndustry;
+import com.github.zabbum.oelremakecomponents.plants.industries.AbstractIndustry;
+import com.github.zabbum.oelremakecomponents.plants.industries.CarsIndustry;
+import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
+import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
+import com.github.zabbum.oelremakeserver.exceptions.ClassIsNotCorrect;
 import com.github.zabbum.oelremakeserver.exceptions.GameDoesNotExistException;
 import com.github.zabbum.oelremakeserver.exceptions.GameHasAlreadyBegunException;
 import com.github.zabbum.oelremakeserver.exceptions.PlayerAlreadyInGameException;
@@ -28,7 +30,7 @@ public class GameService {
      *
      * @return new game
      */
-    public Game createGame(Player player, Integer playersAmount) {
+    public Game createGame(String playerName, Integer playersAmount) {
         Game game = new Game();
 
         // Set round count
@@ -38,6 +40,7 @@ public class GameService {
         game.setPlayersAmount(playersAmount);
 
         // Set player 0
+        Player player = new Player(playerName);
         game.setPlayers(new ArrayList<>());
         game.getPlayers().add(player);
 
@@ -56,7 +59,7 @@ public class GameService {
         return game;
     }
 
-    public Game connectToGame(Player player, String gameId) throws GameDoesNotExistException {
+    public Game connectToGame(String playerName, String gameId) throws GameDoesNotExistException {
         // If game does not exist, throw an exception
         if (!GameStorage.getInstance().getGames().containsKey(gameId)) {
             throw new GameDoesNotExistException(gameId);
@@ -65,19 +68,23 @@ public class GameService {
         // Get game by gameId
         Game game = GameStorage.getInstance().getGames().get(gameId);
 
-        // If game is full, throw exception
+        // If game is in progress, throw exception
         if (game.getGameStatus() != GameStatus.NEW) {
             throw new GameHasAlreadyBegunException(game);
         }
         // If player already is in this game, throw exception
         for (Player p : game.getPlayers()) {
-            if (p.getName().equals(player.getName())) {
-                throw new PlayerAlreadyInGameException(player, game);
+            if (p.getName().equals(playerName)) {
+                throw new PlayerAlreadyInGameException(playerName, game);
             }
         }
 
+        // Add player to game
+        Player player = new Player(playerName);
+        game.getPlayers().add(player);
+
         // If game is full, change status
-        if (game.getPlayers().size() == game.getPlayersAmount() ) {
+        if (game.getPlayers().size() == game.getPlayersAmount()) {
             game.setGameStatus(GameStatus.IN_PROGRESS);
         }
 
@@ -102,5 +109,42 @@ public class GameService {
     public List<PumpsIndustry> getPumpsIndustries(String gameId) {
         Game game = GameStorage.getInstance().getGames().get(gameId);
         return game.getPumpsIndustries();
+    }
+
+    public Player getPlayer(String gameId, Integer playerId) {
+        Game game = GameStorage.getInstance().getGames().get(gameId);
+        return game.getPlayers().get(playerId);
+    }
+
+    public AbstractIndustry buyIndustry(
+            String gameId, Integer playerId, String industryClassName, Integer industryId,
+            Integer productPrice
+    )
+            throws ClassNotFoundException {
+        Game game = GameStorage.getInstance().getGames().get(gameId);
+        Player player = game.getPlayers().get(playerId);
+
+        // Verification of data received
+        Class<?> tmpClass = Class.forName(industryClassName);
+        if (tmpClass.isAssignableFrom(AbstractIndustry.class)) {
+            throw new ClassIsNotCorrect(tmpClass);
+        }
+
+        @SuppressWarnings("unchecked")
+        Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
+        @SuppressWarnings("unchecked")
+        List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
+        AbstractIndustry selectedIndustry = industries.get(industryId);
+
+        if (productPrice > selectedIndustry.getMaxProductPrice()) {
+            throw new IllegalArgumentException("Product price exceeds maximum price");
+        }
+
+        // Note purchase
+        selectedIndustry.setOwnership(player);
+        player.decreaseBalance(selectedIndustry.getPlantPrice());
+        selectedIndustry.setProductPrice(productPrice);
+
+        return selectedIndustry;
     }
 }

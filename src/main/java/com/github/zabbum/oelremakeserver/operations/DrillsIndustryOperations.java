@@ -1,6 +1,6 @@
 package com.github.zabbum.oelremakeserver.operations;
 
-import com.github.zabbum.oelremakecomponents.plants.industries.Drills.DrillsIndustry;
+import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
 
 import java.util.ArrayList;
 import java.util.List;

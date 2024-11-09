@@ -1,6 +1,6 @@
 package com.github.zabbum.oelremakeserver.operations;
 
-import com.github.zabbum.oelremakecomponents.plants.industries.Pumps.PumpsIndustry;
+import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 
 import java.util.ArrayList;
 import java.util.List;
