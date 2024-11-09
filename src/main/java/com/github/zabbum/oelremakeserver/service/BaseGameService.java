@@ -34,6 +34,7 @@ public class BaseGameService {
         // Set round count
         game.setGameId(UUID.randomUUID().toString());
         game.setGameStatus(GameStatus.NEW);
+        game.setCurrentRound(0);
         game.setRoundCount(20);
         game.setPlayersAmount(playersAmount);
 
@@ -70,6 +71,7 @@ public class BaseGameService {
         if (game.getGameStatus() != GameStatus.NEW) {
             throw new GameHasAlreadyBegunException(game);
         }
+
         // If player already is in this game, throw exception
         for (Player p : game.getPlayers()) {
             if (p.getName().equals(playerName)) {
@@ -88,6 +90,13 @@ public class BaseGameService {
         }
 
         return game;
+    }
+
+    public void endTurn(BaseGame game) throws GameDoesNotExistException {
+        game.endCurrentPlayerTurn();
+        if (game.getCurrentPlayerTurn() == game.getPlayers().size()) {
+            game.setGameStatus(GameStatus.FINISHED);
+        }
     }
 
     public List<Oilfield> getOilfields(String gameId) {
@@ -125,6 +134,11 @@ public class BaseGameService {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
 
+        // If game has not begun, throw an exception
+        if (game.getGameStatus()!= GameStatus.NEW) {
+            throw new GameHasNotBegunException(game);
+        }
+
         // If another player is having turn, throw an exception
         if (!Objects.equals(game.getCurrentPlayerTurn(), playerId)) {
             throw new AnotherPlayersTurnException(playerId, game);
@@ -141,7 +155,7 @@ public class BaseGameService {
         selectedOilfield.setOwnership(player);
         player.decreaseBalance(selectedOilfield.getPlantPrice());
 
-        game.endCurrentPlayerTurn();
+        endTurn(game);
 
         return selectedOilfield;
     }
@@ -153,6 +167,11 @@ public class BaseGameService {
             throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
+
+        // If game has not begun, throw an exception
+        if (game.getGameStatus()!= GameStatus.NEW) {
+            throw new GameHasNotBegunException(game);
+        }
 
         // If another player is having turn, throw an exception
         if (!Objects.equals(game.getCurrentPlayerTurn(), playerId)) {
@@ -184,7 +203,7 @@ public class BaseGameService {
         player.decreaseBalance(selectedIndustry.getPlantPrice());
         selectedIndustry.setProductPrice(productPrice);
 
-        game.endCurrentPlayerTurn();
+        endTurn(game);
 
         return selectedIndustry;
     }
@@ -195,6 +214,11 @@ public class BaseGameService {
     ) throws ClassNotFoundException {
         BaseGame game = GameStorage.getInstance().getGames().get(gameId);
         Player player = game.getPlayers().get(playerId);
+
+        // If game has not begun, throw an exception
+        if (game.getGameStatus()!= GameStatus.NEW) {
+            throw new GameHasNotBegunException(game);
+        }
 
         // If another player is having turn, throw an exception
         if (!Objects.equals(game.getCurrentPlayerTurn(), playerId)) {
@@ -231,7 +255,7 @@ public class BaseGameService {
 
         selectedOilfield.addProductAmount(selectedIndustry.getClass(), productAmount);
 
-        game.endCurrentPlayerTurn();
+        endTurn(game);
 
         return selectedOilfield;
     }
