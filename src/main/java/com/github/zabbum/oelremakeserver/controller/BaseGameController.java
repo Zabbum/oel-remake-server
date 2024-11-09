@@ -100,4 +100,13 @@ public class BaseGameController {
                 buyProductsKit.getIndustryId(), buyProductsKit.getProductAmount(), buyProductsKit.getOilfieldId()
         ));
     }
+
+    @PostMapping("/changePrices")
+    public ResponseEntity<BaseGame> changePrices(@RequestBody ChangePricesKit changePricesKit) throws ClassNotFoundException {
+        log.info("Change prices request: {}", changePricesKit);
+        return ResponseEntity.ok(gameService.changePrices(
+                changePricesKit.getGameId(), changePricesKit.getPlayerId(), changePricesKit.getIndustryClassName(),
+                changePricesKit.getIndustryId(), changePricesKit.getNewPrice()
+        ));
+    }
 }

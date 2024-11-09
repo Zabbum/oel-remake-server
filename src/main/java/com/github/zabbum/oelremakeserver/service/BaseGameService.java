@@ -135,7 +135,7 @@ public class BaseGameService {
         Player player = game.getPlayers().get(playerId);
 
         // If game has not begun, throw an exception
-        if (game.getGameStatus()!= GameStatus.IN_PROGRESS) {
+        if (game.getGameStatus() != GameStatus.IN_PROGRESS) {
             throw new GameHasNotBegunException(game);
         }
 
@@ -169,7 +169,7 @@ public class BaseGameService {
         Player player = game.getPlayers().get(playerId);
 
         // If game has not begun, throw an exception
-        if (game.getGameStatus()!= GameStatus.IN_PROGRESS) {
+        if (game.getGameStatus() != GameStatus.IN_PROGRESS) {
             throw new GameHasNotBegunException(game);
         }
 
@@ -216,7 +216,7 @@ public class BaseGameService {
         Player player = game.getPlayers().get(playerId);
 
         // If game has not begun, throw an exception
-        if (game.getGameStatus()!= GameStatus.IN_PROGRESS) {
+        if (game.getGameStatus() != GameStatus.IN_PROGRESS) {
             throw new GameHasNotBegunException(game);
         }
 
@@ -258,5 +258,46 @@ public class BaseGameService {
         endTurn(game);
 
         return selectedOilfield;
+    }
+
+    public BaseGame changePrices(
+            String gameId, Integer playerId, String industryClassName, Integer industryId, Integer newPrice
+    ) throws ClassNotFoundException {
+
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
+        Player player = game.getPlayers().get(playerId);
+
+        // If game has not begun, throw an exception
+        if (game.getGameStatus() != GameStatus.IN_PROGRESS) {
+            throw new GameHasNotBegunException(game);
+        }
+
+        // If another player is having turn, throw an exception
+        if (!Objects.equals(game.getCurrentPlayerTurn(), playerId)) {
+            throw new AnotherPlayersTurnException(playerId, game);
+        }
+
+        // Verification of data received
+        Class<?> tmpClass = Class.forName(industryClassName);
+        if (tmpClass.isAssignableFrom(AbstractIndustry.class)) {
+            throw new ClassIsNotCorrect(tmpClass);
+        }
+
+        @SuppressWarnings("unchecked")
+        Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
+        @SuppressWarnings("unchecked")
+        List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
+        AbstractIndustry selectedIndustry = industries.get(industryId);
+
+        if (selectedIndustry.getOwnership() != player) {
+            throw new PlayerIsNotOwnerException(player, selectedIndustry);
+        }
+
+        // Take actions
+        selectedIndustry.setProductPrice(newPrice);
+
+        endTurn(game);
+
+        return game;
     }
 }
