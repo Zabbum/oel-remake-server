@@ -6,10 +6,7 @@ import com.github.zabbum.oelremakecomponents.plants.industries.CarsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
-import com.github.zabbum.oelremakeserver.exceptions.ClassIsNotCorrect;
-import com.github.zabbum.oelremakeserver.exceptions.GameDoesNotExistException;
-import com.github.zabbum.oelremakeserver.exceptions.GameHasAlreadyBegunException;
-import com.github.zabbum.oelremakeserver.exceptions.PlayerAlreadyInGameException;
+import com.github.zabbum.oelremakeserver.exceptions.*;
 import com.github.zabbum.oelremakecomponents.game.BaseGame;
 import com.github.zabbum.oelremakecomponents.game.GameStatus;
 import com.github.zabbum.oelremakeserver.operations.*;
@@ -23,7 +20,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class GameService {
+public class BaseGameService {
 
     /**
      * Create new game
@@ -116,6 +113,30 @@ public class GameService {
         return game.getPlayers().get(playerId);
     }
 
+    public BaseGame getGame(String gameId) {
+        return GameStorage.getInstance().getGames().get(gameId);
+    }
+
+    public Oilfield buyOilfield(
+            String gameId, Integer playerId, Integer oilfieldId
+    ) {
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
+        Player player = game.getPlayers().get(playerId);
+
+        List<Oilfield> oilfields = game.getOilfields();
+        Oilfield selectedOilfield = oilfields.get(oilfieldId);
+
+        if (selectedOilfield.isBought()) {
+            throw new PlantAlreadyBoughtException(selectedOilfield);
+        }
+
+        // Note purchase
+        selectedOilfield.setOwnership(player);
+        player.decreaseBalance(selectedOilfield.getPlantPrice());
+
+        return selectedOilfield;
+    }
+
     public AbstractIndustry buyIndustry(
             String gameId, Integer playerId, String industryClassName, Integer industryId,
             Integer productPrice
@@ -136,6 +157,10 @@ public class GameService {
         List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
         AbstractIndustry selectedIndustry = industries.get(industryId);
 
+        if (selectedIndustry.isBought()) {
+            throw new PlantAlreadyBoughtException(selectedIndustry);
+        }
+
         if (productPrice > selectedIndustry.getMaxProductPrice()) {
             throw new IllegalArgumentException("Product price exceeds maximum price");
         }
@@ -146,5 +171,45 @@ public class GameService {
         selectedIndustry.setProductPrice(productPrice);
 
         return selectedIndustry;
+    }
+
+    public Oilfield buyProducts(
+            String gameId, Integer playerId, String industryClassName, Integer industryId, Integer productAmount,
+            Integer oilfieldId
+    ) throws ClassNotFoundException {
+        BaseGame game = GameStorage.getInstance().getGames().get(gameId);
+        Player player = game.getPlayers().get(playerId);
+        List<Oilfield> oilfields = game.getOilfields();
+        Oilfield selectedOilfield = oilfields.get(oilfieldId);
+
+        // Verification of data received
+        Class<?> tmpClass = Class.forName(industryClassName);
+        if (tmpClass.isAssignableFrom(AbstractIndustry.class)) {
+            throw new ClassIsNotCorrect(tmpClass);
+        }
+
+        @SuppressWarnings("unchecked")
+        Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
+        @SuppressWarnings("unchecked")
+        List<? extends AbstractIndustry> industries = (List<? extends AbstractIndustry>) game.getPlantsList(industryClass);
+        AbstractIndustry selectedIndustry = industries.get(industryId);
+
+        if (!selectedIndustry.isBought()) {
+            throw new IllegalArgumentException("Selected industry is not bought");
+        }
+
+        // Take actions
+        selectedIndustry.buyProducts(productAmount);
+        player.decreaseBalance(productAmount * selectedIndustry.getProductPrice());
+        if (selectedIndustry.getOwnership() == player) {
+            player.increaseBalance(0.2 * productAmount * selectedIndustry.getProductPrice());
+        }
+        else {
+            selectedIndustry.getOwnership().increaseBalance(productAmount * selectedIndustry.getProductPrice());
+        }
+
+        selectedOilfield.addProductAmount(selectedIndustry.getClass(), productAmount);
+
+        return selectedOilfield;
     }
 }
