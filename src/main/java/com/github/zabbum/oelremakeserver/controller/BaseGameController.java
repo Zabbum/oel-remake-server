@@ -41,7 +41,9 @@ public class BaseGameController {
     @PostMapping("/connect")
     public ResponseEntity<BaseGame> connectToGame(@RequestBody JoinKit joinKit) {
         log.info("Game connection request: {}", joinKit);
-        return ResponseEntity.ok(gameService.connectToGame(joinKit.getPlayerName(), joinKit.getGameId()));
+        BaseGame game = gameService.connectToGame(joinKit.getPlayerName(), joinKit.getGameId());
+        messagingTemplate.convertAndSend("/topic/game-progress/" + game.getGameId(), game);
+        return ResponseEntity.ok(game);
     }
 
     @PostMapping("/getOilfields")
