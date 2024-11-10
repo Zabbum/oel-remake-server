@@ -2,12 +2,10 @@ package com.github.zabbum.oelremakeserver.controller;
 
 import com.github.zabbum.oelremakecomponents.Player;
 import com.github.zabbum.oelremakecomponents.game.BaseGame;
-import com.github.zabbum.oelremakecomponents.plants.industries.AbstractIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.CarsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.DrillsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.industries.PumpsIndustry;
 import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
-import com.github.zabbum.oelremakeserver.model.SabotageSuccess;
 import com.github.zabbum.oelremakeserver.model.kits.*;
 import com.github.zabbum.oelremakeserver.service.BaseGameService;
 import lombok.AllArgsConstructor;
@@ -29,9 +27,9 @@ public class BaseGameController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleAnotherPlayersTurnException(RuntimeException e) {
+    public ResponseEntity<RuntimeException> handleAnotherPlayersTurnException(RuntimeException e) {
         log.error(e.getMessage(), e);
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/start")

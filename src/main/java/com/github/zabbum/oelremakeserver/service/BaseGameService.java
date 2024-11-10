@@ -174,7 +174,7 @@ public class BaseGameService {
         // Verification of data received
         Class<?> tmpClass = Class.forName(industryClassName);
         if (tmpClass.isAssignableFrom(AbstractIndustry.class)) {
-            throw new ClassIsNotCorrect(tmpClass);
+            throw new ClassIsNotCorrectException(tmpClass);
         }
 
         @SuppressWarnings("unchecked") Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
@@ -219,7 +219,7 @@ public class BaseGameService {
         // Verification of data received
         Class<?> tmpClass = Class.forName(industryClassName);
         if (tmpClass.isAssignableFrom(AbstractIndustry.class)) {
-            throw new ClassIsNotCorrect(tmpClass);
+            throw new ClassIsNotCorrectException(tmpClass);
         }
 
         @SuppressWarnings("unchecked") Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
@@ -228,6 +228,10 @@ public class BaseGameService {
 
         if (!selectedIndustry.isBought()) {
             throw new IllegalArgumentException("Selected industry is not bought");
+        }
+
+        if (selectedIndustry.getMaxProductAmountToBuy() < productAmount) {
+            throw new MaxProductAmountExceededException(productAmount, selectedIndustry);
         }
 
         // Take actions
@@ -264,7 +268,7 @@ public class BaseGameService {
         // Verification of data received
         Class<?> tmpClass = Class.forName(industryClassName);
         if (tmpClass.isAssignableFrom(AbstractIndustry.class)) {
-            throw new ClassIsNotCorrect(tmpClass);
+            throw new ClassIsNotCorrectException(tmpClass);
         }
 
         @SuppressWarnings("unchecked") Class<? extends AbstractIndustry> industryClass = (Class<? extends AbstractIndustry>) tmpClass;
@@ -300,7 +304,7 @@ public class BaseGameService {
         // Verification of data received
         Class<?> tmpClass = Class.forName(plantClassName);
         if (tmpClass.isAssignableFrom(AbstractPlant.class)) {
-            throw new ClassIsNotCorrect(tmpClass);
+            throw new ClassIsNotCorrectException(tmpClass);
         }
 
         @SuppressWarnings("unchecked") Class<? extends AbstractPlant> plantClass = (Class<? extends AbstractPlant>) tmpClass;

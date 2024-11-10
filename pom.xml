@@ -66,7 +66,7 @@
 		<dependency>
 			<groupId>com.github.Zabbum</groupId>
 			<artifactId>oel-remake-components</artifactId>
-			<version>0.1.18</version>
+			<version>0.1.19</version>
 		</dependency>
 	</dependencies>
 
