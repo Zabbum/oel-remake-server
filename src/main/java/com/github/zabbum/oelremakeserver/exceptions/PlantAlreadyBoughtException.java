@@ -1,6 +1,6 @@
 package com.github.zabbum.oelremakeserver.exceptions;
 
-import com.github.zabbum.oelremakecomponents.plants.AbstractPlant;
+import com.github.zabbum.oelrlib.plants.AbstractPlant;
 
 public class PlantAlreadyBoughtException extends RuntimeException {
     public PlantAlreadyBoughtException(AbstractPlant plant) {

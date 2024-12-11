@@ -1,6 +1,6 @@
 package com.github.zabbum.oelremakeserver.exceptions;
 
-import com.github.zabbum.oelremakecomponents.plants.industries.AbstractIndustry;
+import com.github.zabbum.oelrlib.plants.industries.AbstractIndustry;
 
 public class MaxProductAmountExceededException extends RuntimeException {
     public MaxProductAmountExceededException(Integer productAmountRequested, AbstractIndustry industry) {

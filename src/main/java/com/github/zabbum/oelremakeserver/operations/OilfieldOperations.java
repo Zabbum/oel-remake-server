@@ -1,6 +1,6 @@
 package com.github.zabbum.oelremakeserver.operations;
 
-import com.github.zabbum.oelremakecomponents.plants.oilfield.Oilfield;
+import com.github.zabbum.oelrlib.plants.oilfield.Oilfield;
 
 import java.util.ArrayList;
 import java.util.List;

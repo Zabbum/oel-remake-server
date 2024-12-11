@@ -1,6 +1,6 @@
 package com.github.zabbum.oelremakeserver.storage;
 
-import com.github.zabbum.oelremakecomponents.game.BaseGame;
+import com.github.zabbum.oelrlib.game.BaseGame;
 
 import java.util.HashMap;
 import java.util.Map;

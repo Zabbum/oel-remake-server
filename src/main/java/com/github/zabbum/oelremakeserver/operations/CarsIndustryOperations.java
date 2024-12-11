@@ -1,6 +1,6 @@
 package com.github.zabbum.oelremakeserver.operations;
 
-import com.github.zabbum.oelremakecomponents.plants.industries.CarsIndustry;
+import com.github.zabbum.oelrlib.plants.industries.CarsIndustry;
 
 import java.util.ArrayList;
 import java.util.List;
